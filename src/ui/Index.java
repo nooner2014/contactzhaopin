@@ -24,8 +24,13 @@ import bean.RecommendListEntity;
 import bean.Result;
 import bean.UserEntity;
 
+import cn.sharesdk.framework.Platform;
 import cn.sharesdk.framework.ShareSDK;
+import cn.sharesdk.framework.Platform.ShareParams;
 import cn.sharesdk.onekeyshare.OnekeyShare;
+import cn.sharesdk.onekeyshare.ShareContentCustomizeCallback;
+import cn.sharesdk.wechat.friends.Wechat;
+
 import com.baidu.android.pushservice.PushConstants;
 import com.baidu.android.pushservice.PushManager;
 import com.google.analytics.tracking.android.EasyTracker;
@@ -947,7 +952,7 @@ public class Index extends AppActivity {
 		}
 	}
 	
-	public void oks(String title, String text, String link, String filePath) {
+	public void oks(String title, final String text, final String link, String filePath) {
 		try {
 			final OnekeyShare oks = new OnekeyShare();
 			oks.setNotification(R.drawable.ic_launcher, getResources().getString(R.string.app_name));
@@ -967,6 +972,21 @@ public class Index extends AppActivity {
 			oks.setLatitude(23.056081f);
 			oks.setLongitude(113.385708f);
 			oks.setSilent(false);
+			oks.setShareContentCustomizeCallback(new ShareContentCustomizeCallback() {
+				@Override
+				public void onShare(Platform platform, ShareParams paramsToShare) {
+					if (platform.getName().equals(Wechat.NAME)) {
+						paramsToShare.setText(text + " " + link);
+						paramsToShare.setTitle("");
+						paramsToShare.setText(text + " " + link);
+						paramsToShare.setUrl(link);
+						paramsToShare.setSiteUrl(link);
+						paramsToShare.setSite(link);
+						paramsToShare.setTitleUrl("");
+						paramsToShare.setImagePath("");
+					}
+				}
+			});
 			oks.show(this);
 		} catch (Exception e) {
 			Logger.i(e);
